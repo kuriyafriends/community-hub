@@ -48,7 +48,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-sm w-full space-y-8">
         <div className="text-center">
-          <svg className="mx-auto mb-4 opacity-40" width="36" height="36" viewBox="0 0 100 100" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round"><path d="M50 90 L50 45"/><path d="M50 45 C50 25 35 10 25 5"/><path d="M50 45 C45 30 30 20 15 18"/><path d="M50 45 C55 30 70 20 85 18"/><path d="M50 45 C50 25 65 10 75 5"/><path d="M50 45 C42 32 28 28 15 35"/></svg>
+          <svg className="mx-auto mb-4 opacity-30" width="40" height="40" viewBox="0 0 120 130" fill="var(--primary)" fillOpacity="0.15" stroke="var(--primary)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M60 125 L60 68" fill="none"/><path d="M60 68 C58 55 52 35 42 18 C40 14 38 10 40 8 C42 6 46 10 48 14 C54 28 58 50 60 68Z"/><path d="M60 68 C55 58 42 42 28 30 C24 27 20 24 18 26 C16 28 20 32 24 35 C38 46 54 58 60 68Z"/><path d="M60 68 C65 58 78 42 92 30 C96 27 100 24 102 26 C104 28 100 32 96 35 C82 46 66 58 60 68Z"/><path d="M60 68 C62 55 68 35 78 18 C80 14 82 10 80 8 C78 6 74 10 72 14 C66 28 62 50 60 68Z"/><path d="M60 68 C56 60 44 50 30 45 C26 44 21 43 20 45 C19 47 23 49 27 50 C42 54 56 62 60 68Z"/></svg>
           <h1 className="text-3xl font-bold mb-2 header-accent" style={{ fontFamily: 'var(--font-heading)' }}>KURIYA Friends</h1>
           <p className="text-[var(--text-secondary)]">Private community — invite only</p>
           <div className="leaf-divider mt-4"><span>🍃</span></div>

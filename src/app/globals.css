@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -15,8 +15,8 @@
   --primary-hover: #1E4030;
   --accent: #7D9B76;
   --accent-warm: #C4A265;
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Nunito', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
 }
 
 .dark {
@@ -53,7 +53,7 @@ body::before {
   pointer-events: none;
   z-index: 0;
   opacity: 0.015;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%232D5A3D' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M120 200 L120 100'/%3E%3Cpath d='M120 100 C120 70 100 40 85 20' /%3E%3Cpath d='M120 100 C115 75 95 55 70 45' /%3E%3Cpath d='M120 100 C130 80 150 60 170 45' /%3E%3Cpath d='M120 100 C120 70 140 40 155 20' /%3E%3Cpath d='M120 100 C110 80 90 65 65 65' /%3E%3Cpath d='M85 20 C90 35 88 50 80 58' /%3E%3Cpath d='M155 20 C150 35 152 50 160 58' /%3E%3Cpath d='M70 45 C78 50 80 60 76 70' /%3E%3Cpath d='M170 45 C162 50 160 60 164 70' /%3E%3Cpath d='M65 65 C72 65 80 70 82 78' /%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='260' viewBox='0 0 120 130'%3E%3Cg fill='%232D5A3D' fill-opacity='0.12' stroke='%232D5A3D' stroke-width='0.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M60 125 L60 68' fill='none'/%3E%3Cpath d='M60 68 C58 55 52 35 42 18 C40 14 38 10 40 8 C42 6 46 10 48 14 C54 28 58 50 60 68Z'/%3E%3Cpath d='M60 68 C55 58 42 42 28 30 C24 27 20 24 18 26 C16 28 20 32 24 35 C38 46 54 58 60 68Z'/%3E%3Cpath d='M60 68 C65 58 78 42 92 30 C96 27 100 24 102 26 C104 28 100 32 96 35 C82 46 66 58 60 68Z'/%3E%3Cpath d='M60 68 C62 55 68 35 78 18 C80 14 82 10 80 8 C78 6 74 10 72 14 C66 28 62 50 60 68Z'/%3E%3Cpath d='M60 68 C56 60 44 50 30 45 C26 44 21 43 20 45 C19 47 23 49 27 50 C42 54 56 62 60 68Z'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 240px 240px;
 }
 
