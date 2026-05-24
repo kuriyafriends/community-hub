@@ -48,8 +48,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-sm w-full space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">KURIYA Friends</h1>
+          <svg className="mx-auto mb-4 opacity-40" width="36" height="36" viewBox="0 0 100 100" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round"><path d="M50 90 L50 45"/><path d="M50 45 C50 25 35 10 25 5"/><path d="M50 45 C45 30 30 20 15 18"/><path d="M50 45 C55 30 70 20 85 18"/><path d="M50 45 C50 25 65 10 75 5"/><path d="M50 45 C42 32 28 28 15 35"/></svg>
+          <h1 className="text-3xl font-bold mb-2 header-accent" style={{ fontFamily: 'var(--font-heading)' }}>KURIYA Friends</h1>
           <p className="text-[var(--text-secondary)]">Private community — invite only</p>
+          <div className="leaf-divider mt-4"><span>🍃</span></div>
         </div>
 
         {sent ? (
@@ -83,7 +85,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] transition-colors font-medium disabled:opacity-50"
+              className="w-full py-3 btn-botanical disabled:opacity-50"
             >
               {loading ? 'Checking...' : 'Sign in with Magic Link'}
             </button>
@@ -97,3 +99,4 @@ export default function LoginPage() {
     </div>
   )
 }
+
