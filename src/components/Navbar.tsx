@@ -46,7 +46,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b bg-[var(--bg)] border-[var(--border)]">
       <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
         <Link href="/" className="font-bold text-lg text-[var(--primary)]">
-          Community Hub
+        KURIYA Friends
         </Link>
 
         {/* Desktop */}

@@ -48,7 +48,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-sm w-full space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Community Hub</h1>
+          <h1 className="text-3xl font-bold mb-2">KURIYA Friends</h1>
           <p className="text-[var(--text-secondary)]">Private community — invite only</p>
         </div>
 

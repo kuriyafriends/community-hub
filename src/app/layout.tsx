@@ -6,7 +6,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Community Hub',
+  title: 'KURIYA Friends',
   description: 'Private community marketplace & discussions',
 }
 

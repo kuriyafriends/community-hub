@@ -39,7 +39,7 @@ export default function Home() {
         <h1 className="text-3xl font-bold mb-2">
           Welcome{profile?.display_name ? `, ${profile.display_name}` : ''} 👋
         </h1>
-        <p className="text-[var(--text-secondary)]">Your private community hub</p>
+        <p className="text-[var(--text-secondary)]">Your private KURIYA Friends</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
