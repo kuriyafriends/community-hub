@@ -2,34 +2,72 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+type Mode = 'magic' | 'password'
+
 export default function LoginPage() {
   const supabase = createClient()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [mode, setMode] = useState<Mode>('magic')
   const [sent, setSent] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  async function checkWhitelist() {
+    const normalizedEmail = email.trim().toLowerCase()
+    const { data: whitelisted } = await supabase
+      .from('email_whitelist')
+      .select('id')
+      .eq('email', normalizedEmail)
+      .single()
+
+    if (!whitelisted) {
+      setError('Sorry, this email is not on the invite list. Contact the admin to get access.')
+      return false
+    }
+    return true
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     if (!email.trim()) return
     setLoading(true)
     setError('')
+    setSent(false)
+    setResetSent(false)
 
-    // Check whitelist first
-    const { data: whitelisted } = await supabase
-      .from('email_whitelist')
-      .select('id')
-      .eq('email', email.trim().toLowerCase())
-      .single()
-
-    if (!whitelisted) {
-      setError('Sorry, this email is not on the invite list. Contact the admin to get access.')
+    if (!(await checkWhitelist())) {
       setLoading(false)
       return
     }
 
+    const normalizedEmail = email.trim().toLowerCase()
+
+    if (mode === 'password') {
+      if (!password) {
+        setError('Please enter your password.')
+        setLoading(false)
+        return
+      }
+
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      })
+
+      if (authError) {
+        setError('The email or password is incorrect. If you have not created a password yet, use the magic link.')
+        setLoading(false)
+        return
+      }
+
+      window.location.href = '/'
+      return
+    }
+
     const { error: authError } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -42,6 +80,33 @@ export default function LoginPage() {
       setSent(true)
       setLoading(false)
     }
+  }
+
+  async function handleForgotPassword() {
+    setError('')
+    setResetSent(false)
+    if (!email.trim()) {
+      setError('Please enter your email address first.')
+      return
+    }
+
+    setLoading(true)
+    if (!(await checkWhitelist())) {
+      setLoading(false)
+      return
+    }
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email.trim().toLowerCase(),
+      { redirectTo: `${window.location.origin}/auth/callback?next=/reset-password` }
+    )
+
+    if (resetError) {
+      setError(resetError.message)
+    } else {
+      setResetSent(true)
+    }
+    setLoading(false)
   }
 
   return (
@@ -61,6 +126,9 @@ export default function LoginPage() {
             <p className="text-sm text-[var(--text-secondary)] mt-1">
               We sent a magic link to <strong>{email}</strong>. Click it to sign in.
             </p>
+            <button type="button" onClick={() => setSent(false)} className="mt-4 text-sm underline">
+              Back to sign in
+            </button>
           </div>
         ) : (
           <form onSubmit={handleLogin} className="space-y-4">
@@ -69,6 +137,29 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
+
+            {resetSent && (
+              <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-700 dark:text-green-400 text-sm">
+                Check your email for a password-reset link.
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-lg bg-[var(--bg-secondary)]">
+              <button
+                type="button"
+                onClick={() => { setMode('magic'); setError(''); setResetSent(false) }}
+                className={`py-2 rounded-md text-sm font-medium ${mode === 'magic' ? 'bg-[var(--bg)] shadow-sm' : ''}`}
+              >
+                Email link
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMode('password'); setError(''); setResetSent(false) }}
+                className={`py-2 rounded-md text-sm font-medium ${mode === 'password' ? 'bg-[var(--bg)] shadow-sm' : ''}`}
+              >
+                Password
+              </button>
+            </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">Email address</label>
@@ -82,16 +173,40 @@ export default function LoginPage() {
               />
             </div>
 
+            {mode === 'password' && (
+              <div>
+                <label className="block text-sm font-medium mb-1">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                  autoComplete="current-password"
+                />
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
               className="w-full py-3 btn-botanical disabled:opacity-50"
             >
-              {loading ? 'Checking...' : 'Sign in with Magic Link'}
+              {loading ? 'Checking...' : mode === 'magic' ? 'Send me a magic link' : 'Sign in with password'}
             </button>
 
+            {mode === 'password' && (
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={loading}
+                className="w-full text-sm text-[var(--primary)] hover:underline disabled:opacity-50"
+              >
+                Forgot your password? Email me a verification link
+              </button>
+            )}
+
             <p className="text-xs text-center text-[var(--text-secondary)]">
-              You need an invite to join. Ask the community admin for access.
+              You need an invite to join. After your first email-link sign-in, you can create a personal password in your Profile.
             </p>
           </form>
         )}
@@ -99,4 +214,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
