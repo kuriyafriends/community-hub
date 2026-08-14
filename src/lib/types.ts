@@ -18,6 +18,7 @@ export interface Category {
 
 export interface Listing {
   id: string
+  reference_code: string | null
   user_id: string
   category_id: string
   title: string
@@ -51,6 +52,7 @@ export interface ListingComment {
 
 export interface Discussion {
   id: string
+  reference_code: string | null
   user_id: string
   category_id: string
   title: string
