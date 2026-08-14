@@ -12,6 +12,18 @@ create sequence if not exists public.ref_children_seq start 120801;
 create sequence if not exists public.ref_free_seq start 120801;
 create sequence if not exists public.ref_other_seq start 120801;
 
+-- Categories used by the KURIYA home-page sections, added only if missing.
+insert into public.categories (name, type, sort_order)
+select v.name, 'classified'::category_type, v.sort_order
+from (values
+  ('Pet', 9),
+  ('Children', 10),
+  ('Other Services', 11)
+) as v(name, sort_order)
+where not exists (
+  select 1 from public.categories c where lower(c.name) = lower(v.name) and c.type = 'classified'
+);
+
 alter table public.listings
   add column if not exists reference_code text;
 
@@ -112,8 +124,7 @@ create trigger discussions_set_reference
   before insert on public.discussions
   for each row execute function public.set_discussion_reference();
 
--- Give the existing rows references as well. Existing rows receive numbers
--- in creation order within each public type.
+-- Give existing rows references as well. Existing rows receive numbers in creation order.
 with ranked as (
   select l.id,
          public.classified_reference_prefix(c.name) as prefix,
@@ -141,41 +152,13 @@ set reference_code = 'F' || (120800 + r.rn)::text
 from ranked r
 where d.id = r.id;
 
--- Move sequences forward so future automatically generated references cannot
--- collide with references assigned above.
-select setval(
-  'public.ref_sell_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'S%'), 120800))
-);
-select setval(
-  'public.ref_buy_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'B%'), 120800))
-);
-select setval(
-  'public.ref_housing_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'H%'), 120800))
-);
-select setval(
-  'public.ref_pet_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'P%'), 120800))
-);
-select setval(
-  'public.ref_event_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'E%'), 120800))
-);
-select setval(
-  'public.ref_children_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'C%'), 120800))
-);
-select setval(
-  'public.ref_free_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'G%'), 120800))
-);
-select setval(
-  'public.ref_other_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'O%'), 120800))
-);
-select setval(
-  'public.ref_forum_seq',
-  greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.discussions where reference_code like 'F%'), 120800))
-);
+-- Move sequences forward so future generated references cannot collide with existing references.
+select setval('public.ref_sell_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'S%'), 120800)));
+select setval('public.ref_buy_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'B%'), 120800)));
+select setval('public.ref_housing_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'H%'), 120800)));
+select setval('public.ref_pet_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'P%'), 120800)));
+select setval('public.ref_event_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'E%'), 120800)));
+select setval('public.ref_children_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'C%'), 120800)));
+select setval('public.ref_free_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'G%'), 120800)));
+select setval('public.ref_other_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.listings where reference_code like 'O%'), 120800)));
+select setval('public.ref_forum_seq', greatest(120800, coalesce((select max(substring(reference_code from 2)::bigint) from public.discussions where reference_code like 'F%'), 120800)));
