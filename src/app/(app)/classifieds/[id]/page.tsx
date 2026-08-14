@@ -72,7 +72,6 @@ export default function ListingDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      {/* Images */}
       {listing.listing_images && listing.listing_images.length > 0 && (
         <div className="grid grid-cols-2 gap-2 rounded-xl overflow-hidden">
           {listing.listing_images.map((img, i) => (
@@ -86,18 +85,22 @@ export default function ListingDetailPage() {
         </div>
       )}
 
-      {/* Header */}
       <div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] mb-2">
-              {listing.categories?.name}
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)]">
+                {listing.categories?.name}
+              </span>
+              {listing.reference_code && (
+                <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--primary)] text-white text-xs font-semibold">
+                  Ref. {listing.reference_code}
+                </span>
+              )}
+            </div>
             <h1 className="text-2xl font-bold">{listing.title}</h1>
           </div>
-          {listing.price && (
-            <span className="text-2xl font-bold text-[var(--accent)]">{listing.price}</span>
-          )}
+          {listing.price && <span className="text-2xl font-bold text-[var(--accent)]">{listing.price}</span>}
         </div>
         {listing.status !== 'active' && (
           <span className="inline-block mt-2 px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium uppercase">
@@ -106,10 +109,7 @@ export default function ListingDetailPage() {
         )}
       </div>
 
-      {/* Details */}
-      <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
-        {listing.description}
-      </div>
+      <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">{listing.description}</div>
 
       <div className="flex flex-wrap gap-4 text-sm text-[var(--text-secondary)]">
         {listing.location && <span>📍 {listing.location}</span>}
@@ -118,7 +118,6 @@ export default function ListingDetailPage() {
         <span>📅 {new Date(listing.created_at).toLocaleDateString()}</span>
       </div>
 
-      {/* Actions */}
       {(isOwner || isAdmin) && listing.status === 'active' && (
         <div className="flex flex-wrap gap-2">
           {isOwner && (
@@ -131,7 +130,6 @@ export default function ListingDetailPage() {
         </div>
       )}
 
-      {/* Comments */}
       <div className="border-t border-[var(--border)] pt-6">
         <h2 className="text-lg font-semibold mb-4">Comments ({comments.length})</h2>
 
@@ -141,9 +139,7 @@ export default function ListingDetailPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <span className="font-medium text-sm">{c.profiles?.display_name}</span>
-                  <span className="text-xs text-[var(--text-secondary)] ml-2">
-                    {new Date(c.created_at).toLocaleString()}
-                  </span>
+                  <span className="text-xs text-[var(--text-secondary)] ml-2">{new Date(c.created_at).toLocaleString()}</span>
                 </div>
                 {(profile?.id === c.user_id || isAdmin) && (
                   <button onClick={() => deleteComment(c.id)} className="text-xs text-red-500 hover:underline">delete</button>
