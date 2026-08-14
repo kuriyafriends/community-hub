@@ -17,18 +17,9 @@ export default function DiscussionDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from('discussions')
-        .select('*, profiles(*), categories(*)')
-        .eq('id', id)
-        .single()
+      const { data } = await supabase.from('discussions').select('*, profiles(*), categories(*)').eq('id', id).single()
       setDiscussion(data)
-
-      const { data: cmts } = await supabase
-        .from('discussion_comments')
-        .select('*, profiles(*)')
-        .eq('discussion_id', id)
-        .order('created_at')
+      const { data: cmts } = await supabase.from('discussion_comments').select('*, profiles(*)').eq('discussion_id', id).order('created_at')
       setComments(cmts || [])
       setLoading(false)
     }
@@ -37,11 +28,7 @@ export default function DiscussionDetailPage() {
 
   async function addComment() {
     if (!newComment.trim() || !profile) return
-    const { data, error } = await supabase
-      .from('discussion_comments')
-      .insert({ discussion_id: id, user_id: profile.id, content: newComment.trim() })
-      .select('*, profiles(*)')
-      .single()
+    const { data, error } = await supabase.from('discussion_comments').insert({ discussion_id: id, user_id: profile.id, content: newComment.trim() }).select('*, profiles(*)').single()
     if (!error && data) {
       setComments([...comments, data])
       setNewComment('')
@@ -74,12 +61,17 @@ export default function DiscussionDetailPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] mb-2">
-          {discussion.categories?.name}
-        </span>
-        <h1 className="text-2xl font-bold">
-          {discussion.is_pinned && '📌 '}{discussion.title}
-        </h1>
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)]">
+            {discussion.categories?.name}
+          </span>
+          {discussion.reference_code && (
+            <span className="inline-block px-2 py-0.5 rounded-full bg-[var(--primary)] text-white text-xs font-semibold">
+              Ref. {discussion.reference_code}
+            </span>
+          )}
+        </div>
+        <h1 className="text-2xl font-bold">{discussion.is_pinned && '📌 '}{discussion.title}</h1>
         <div className="flex items-center gap-3 mt-2 text-sm text-[var(--text-secondary)]">
           <span>👤 {discussion.profiles?.display_name}</span>
           <span>📅 {new Date(discussion.created_at).toLocaleDateString()}</span>
@@ -92,49 +84,31 @@ export default function DiscussionDetailPage() {
 
       {(isOwner || isAdmin) && (
         <div className="flex gap-2">
-          {isAdmin && (
-            <button onClick={togglePin} className="px-3 py-1.5 text-sm bg-yellow-600 text-white rounded-lg">
-              {discussion.is_pinned ? 'Unpin' : 'Pin'}
-            </button>
-          )}
+          {isAdmin && <button onClick={togglePin} className="px-3 py-1.5 text-sm bg-yellow-600 text-white rounded-lg">{discussion.is_pinned ? 'Unpin' : 'Pin'}</button>}
           <button onClick={deleteDiscussion} className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg">Delete</button>
         </div>
       )}
 
-      {/* Comments */}
       <div className="border-t border-[var(--border)] pt-6">
         <h2 className="text-lg font-semibold mb-4">Replies ({comments.length})</h2>
-
         <div className="space-y-3 mb-4">
           {comments.map(c => (
             <div key={c.id} className="p-3 rounded-lg bg-[var(--bg-secondary)]">
               <div className="flex justify-between items-start">
                 <div>
                   <span className="font-medium text-sm">{c.profiles?.display_name}</span>
-                  <span className="text-xs text-[var(--text-secondary)] ml-2">
-                    {new Date(c.created_at).toLocaleString()}
-                  </span>
+                  <span className="text-xs text-[var(--text-secondary)] ml-2">{new Date(c.created_at).toLocaleString()}</span>
                 </div>
-                {(profile?.id === c.user_id || isAdmin) && (
-                  <button onClick={() => deleteComment(c.id)} className="text-xs text-red-500 hover:underline">delete</button>
-                )}
+                {(profile?.id === c.user_id || isAdmin) && <button onClick={() => deleteComment(c.id)} className="text-xs text-red-500 hover:underline">delete</button>}
               </div>
               <p className="text-sm mt-1 whitespace-pre-wrap">{c.content}</p>
             </div>
           ))}
-          {comments.length === 0 && (
-            <p className="text-sm text-[var(--text-secondary)]">No replies yet. Be the first!</p>
-          )}
+          {comments.length === 0 && <p className="text-sm text-[var(--text-secondary)]">No replies yet. Be the first!</p>}
         </div>
 
         <div className="flex gap-2">
-          <input
-            value={newComment}
-            onChange={e => setNewComment(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addComment())}
-            placeholder="Write a reply..."
-            className="flex-1 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-          />
+          <input value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), addComment())} placeholder="Write a reply..." className="flex-1 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]" />
           <button onClick={addComment} className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm">Reply</button>
         </div>
       </div>
