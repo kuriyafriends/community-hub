@@ -21,13 +21,12 @@ export default function ClassifiedsPage() {
         .order('sort_order')
       setCategories(cats || [])
 
-      let q = supabase
+      const { data } = await supabase
         .from('listings')
         .select('*, profiles(*), categories(*), listing_images(*)')
         .eq('status', 'active')
         .order('created_at', { ascending: false })
 
-      const { data } = await q
       setListings(data || [])
       setLoading(false)
     }
@@ -38,7 +37,8 @@ export default function ClassifiedsPage() {
     const matchCat = selectedCat === 'all' || l.category_id === selectedCat
     const matchSearch = !search ||
       l.title.toLowerCase().includes(search.toLowerCase()) ||
-      l.description.toLowerCase().includes(search.toLowerCase())
+      l.description.toLowerCase().includes(search.toLowerCase()) ||
+      (l.reference_code || '').toLowerCase().includes(search.toLowerCase())
     return matchCat && matchSearch
   })
 
@@ -54,11 +54,10 @@ export default function ClassifiedsPage() {
         </Link>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Search listings..."
+          placeholder="Search listings or reference number..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="flex-1 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
@@ -75,7 +74,6 @@ export default function ClassifiedsPage() {
         </select>
       </div>
 
-      {/* Listings grid */}
       {loading ? (
         <div className="text-center py-8 text-[var(--text-secondary)]">Loading...</div>
       ) : filtered.length === 0 ? (
@@ -92,27 +90,19 @@ export default function ClassifiedsPage() {
               className="border border-[var(--border)] rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
             >
               {l.listing_images && l.listing_images.length > 0 ? (
-                <img
-                  src={l.listing_images[0].image_url}
-                  alt={l.title}
-                  className="w-full h-40 object-cover"
-                />
+                <img src={l.listing_images[0].image_url} alt={l.title} className="w-full h-40 object-cover" />
               ) : (
-                <div className="w-full h-40 bg-[var(--bg-secondary)] flex items-center justify-center text-4xl">
-                  📦
-                </div>
+                <div className="w-full h-40 bg-[var(--bg-secondary)] flex items-center justify-center text-4xl">📦</div>
               )}
               <div className="p-4">
-                <div className="flex justify-between items-start mb-1">
+                <div className="flex justify-between items-start mb-1 gap-2">
                   <h3 className="font-semibold text-sm line-clamp-1">{l.title}</h3>
-                  {l.price && (
-                    <span className="text-sm font-bold text-[var(--accent)] ml-2 whitespace-nowrap">{l.price}</span>
-                  )}
+                  {l.price && <span className="text-sm font-bold text-[var(--accent)] ml-2 whitespace-nowrap">{l.price}</span>}
                 </div>
                 <p className="text-xs text-[var(--text-secondary)] mb-2 line-clamp-2">{l.description}</p>
                 <div className="flex justify-between items-center text-xs text-[var(--text-secondary)]">
                   <span className="px-2 py-0.5 rounded-full bg-[var(--bg-secondary)]">{l.categories?.name}</span>
-                  <span>{l.profiles?.display_name}</span>
+                  <span>{l.reference_code}</span>
                 </div>
               </div>
             </Link>
