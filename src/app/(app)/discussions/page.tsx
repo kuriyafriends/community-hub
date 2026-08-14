@@ -9,6 +9,7 @@ export default function DiscussionsPage() {
   const [discussions, setDiscussions] = useState<Discussion[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCat, setSelectedCat] = useState<string>('all')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -31,38 +32,40 @@ export default function DiscussionsPage() {
     load()
   }, [])
 
-  const filtered = selectedCat === 'all'
-    ? discussions
-    : discussions.filter(d => d.category_id === selectedCat)
+  const filtered = discussions.filter(d => {
+    const matchCat = selectedCat === 'all' || d.category_id === selectedCat
+    const matchSearch = !search ||
+      d.title.toLowerCase().includes(search.toLowerCase()) ||
+      d.body.toLowerCase().includes(search.toLowerCase()) ||
+      (d.reference_code || '').toLowerCase().includes(search.toLowerCase())
+    return matchCat && matchSearch
+  })
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold">💬 Discussions</h1>
-        <Link
-          href="/discussions/new"
-          className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] transition-colors text-sm font-medium"
-        >
+        <Link href="/discussions/new" className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] transition-colors text-sm font-medium">
           + New Topic
         </Link>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
-        <button
-          onClick={() => setSelectedCat('all')}
-          className={`px-3 py-1.5 rounded-full text-sm ${selectedCat === 'all' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-secondary)]'}`}
-        >
-          All
-        </button>
-        {categories.map(c => (
-          <button
-            key={c.id}
-            onClick={() => setSelectedCat(c.id)}
-            className={`px-3 py-1.5 rounded-full text-sm ${selectedCat === c.id ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-secondary)]'}`}
-          >
-            {c.name}
-          </button>
-        ))}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          placeholder="Search discussions or reference number..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+        />
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={() => setSelectedCat('all')} className={`px-3 py-1.5 rounded-full text-sm ${selectedCat === 'all' ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-secondary)]'}`}>All</button>
+          {categories.map(c => (
+            <button key={c.id} onClick={() => setSelectedCat(c.id)} className={`px-3 py-1.5 rounded-full text-sm ${selectedCat === c.id ? 'bg-[var(--primary)] text-white' : 'bg-[var(--bg-secondary)]'}`}>
+              {c.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -75,17 +78,14 @@ export default function DiscussionsPage() {
       ) : (
         <div className="space-y-2">
           {filtered.map(d => (
-            <Link
-              key={d.id}
-              href={`/discussions/${d.id}`}
-              className="block p-4 rounded-xl border border-[var(--border)] hover:shadow-md transition-shadow"
-            >
+            <Link key={d.id} href={`/discussions/${d.id}`} className="block p-4 rounded-xl border border-[var(--border)] hover:shadow-md transition-shadow">
               <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm">
-                    {d.is_pinned && '📌 '}{d.title}
-                  </h3>
-                  <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-1">{d.body}</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    {d.reference_code && <span className="text-xs font-semibold text-[var(--primary)]">{d.reference_code}</span>}
+                    <h3 className="font-semibold text-sm">{d.is_pinned && '📌 '}{d.title}</h3>
+                  </div>
+                  <p className="text-xs text-[var(--text-secondary)] line-clamp-1">{d.body}</p>
                 </div>
                 <div className="text-right text-xs text-[var(--text-secondary)] shrink-0">
                   <p>{d.profiles?.display_name}</p>
