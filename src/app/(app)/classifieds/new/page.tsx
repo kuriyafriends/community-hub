@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useProfile } from '@/lib/hooks'
 import type { Category } from '@/lib/types'
@@ -10,7 +10,6 @@ import { classifiedSections } from '@/lib/classified-config'
 export default function NewListingPage() {
   const supabase = createClient()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { profile } = useProfile()
   const [categories, setCategories] = useState<Category[]>([])
   const [title, setTitle] = useState('')
@@ -28,11 +27,11 @@ export default function NewListingPage() {
       const allowedNames = classifiedSections.flatMap(section => section.categoryNames)
       const allowed = (data || []).filter(category => allowedNames.includes(category.name))
       setCategories(allowed)
-      const requested = searchParams.get('category')
+      const requested = new URLSearchParams(window.location.search).get('category')
       const requestedCategory = allowed.find(c => c.name.toLowerCase().replace(/\s+/g, '-') === requested)
       setCategoryId(requestedCategory?.id || allowed[0]?.id || '')
     })
-  }, [searchParams])
+  }, [])
 
   const selectedCategory = categories.find(c => c.id === categoryId)
   const section = classifiedSections.find(s => selectedCategory && s.categoryNames.includes(selectedCategory.name)) || classifiedSections[0]
@@ -83,32 +82,13 @@ export default function NewListingPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">{error}</div>}
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Category *</label>
-          <select value={categoryId} onChange={e => setCategoryId(e.target.value)} className={inputClass}>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Post Name *</label>
-          <input type="text" value={title} onChange={e => setTitle(e.target.value)} className={inputClass} placeholder="Post name" maxLength={200} />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">{section.descriptionPrompt || 'Description'}</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} className={`${inputClass} min-h-[150px]`} placeholder={section.descriptionPrompt || 'Add details...'} />
-        </div>
-
+        <div><label className="block text-sm font-medium mb-1">Category *</label><select value={categoryId} onChange={e => setCategoryId(e.target.value)} className={inputClass}>{categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
+        <div><label className="block text-sm font-medium mb-1">Post Name *</label><input type="text" value={title} onChange={e => setTitle(e.target.value)} className={inputClass} placeholder="Post name" maxLength={200} /></div>
+        <div><label className="block text-sm font-medium mb-1">{section.descriptionPrompt || 'Description'}</label><textarea value={description} onChange={e => setDescription(e.target.value)} className={`${inputClass} min-h-[150px]`} placeholder={section.descriptionPrompt || 'Add details...'} /></div>
         {section.showPrice && <div><label className="block text-sm font-medium mb-1">Price</label><input type="text" value={price} onChange={e => setPrice(e.target.value)} className={inputClass} placeholder="Price" /></div>}
-
         <div><label className="block text-sm font-medium mb-1">Where?</label><input type="text" value={location} onChange={e => setLocation(e.target.value)} className={inputClass} placeholder="Location" /></div>
-
         {section.showContact && <div><label className="block text-sm font-medium mb-1">Contact information</label><input type="text" value={contactInfo} onChange={e => setContactInfo(e.target.value)} className={inputClass} placeholder="Email, phone, or other contact information" /></div>}
-
         {section.showPhotos && <div><label className="block text-sm font-medium mb-1">Photos (main photo + up to 3 additional)</label><input type="file" accept="image/*" multiple onChange={e => setImages(Array.from(e.target.files || []).slice(0, 4))} className="text-sm" />{images.length > 0 && <p className="text-xs text-[var(--text-secondary)] mt-1">{images.length} photo(s) selected</p>}</div>}
-
         <button type="submit" disabled={submitting} className="w-full py-3 btn-botanical disabled:opacity-50">{submitting ? 'Publishing...' : 'Publish Post'}</button>
       </form>
     </div>
