@@ -1,6 +1,5 @@
 export interface Profile {
   id: string
-  user_id: string
   email: string
   display_name: string
   avatar_url: string | null
